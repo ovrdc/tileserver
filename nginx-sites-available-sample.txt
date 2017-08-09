@@ -29,6 +29,9 @@ server {
     }    
 
     location /tileserver-styles {
+    
+        # using openmaptiles for serving basemaps, this entry is for those sprites and fonts
+    
         alias /home/YOUR USER/tileserver-styles;
 
      if ($request_method = 'OPTIONS') {
