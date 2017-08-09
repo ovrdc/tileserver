@@ -1,0 +1,131 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.13/css/dataTables.bootstrap.min.css" />
+<style>
+body {
+    font-family: "Segoe UI", sans-serif;
+}
+a, th {
+    color: #5cb85c;
+}
+a:hover, a:focus {
+    color: #449d44;
+}
+.pagination>.active>a, .pagination>.active>a:focus, .pagination>.active>a:hover, .pagination>.active>span, .pagination>.active>span:focus, .pagination>.active>span:hover {
+    background-color: #5cb85c;
+    border-color: #5cb85c;
+}
+@media screen and (max-width: 767px) {
+    label, .pagination, div.dataTables_info  {
+        width: 100%;
+        float: left;
+        text-align: left!important;
+    }
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h1><a href="http://www.ovrdc.org/gis">OVRDC</a> Tile Server</h1>
+<h5>Server: <span id="free"></span> GB free of <span id="total"></span> GB</h5>
+<h5>CPU Usage: <span id="cpu"></span>&#37;&nbsp;Memory Usage: <span id="mem"></span> MB</h5>
+<h2>Available Data</h2>
+<div></div>
+<table id="example" class="table table-striped table-bordered" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+                <th>
+                    Preview
+                </th>
+                <th>File Name & Description</th>
+                <th>Size (MB)</th>
+                <th>Type</th>
+            </tr>
+        </thead>
+        <!--tfoot>
+            <tr>
+                <th>Name</th>
+                <th>Position</th>
+                <th>Office</th>
+                <th>Age</th>
+                <th>Start date</th>
+                <th>Salary</th>
+            </tr>
+        </tfoot-->
+        <tbody id="table">
+        </tbody>
+</table>
+<h3>To Do:</h3>
+<ul>
+    <li>When uploading mbtiles, also upload the original geojson file, and add that as a 'download' link</li>
+    <li>In the future make the tile names better maybe with an _ or - so that they look better in this list without having to do any more coding, ie creating a json of all the files and their aliases</li>
+    <li>Add link to raw pbf or simple styled json for public use.</li>
+</ul>
+</div>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.13/js/dataTables.bootstrap.min.js"></script>
+<script>
+$.getJSON('https://tiles.ovrdc.org/metadata.json', function(data) {
+    console.log('metadata:', data);
+    for (i=0; i < data.length; i++) {
+      if (data[i] && (data[i].vector_layers || data[i].name)) {
+        //console.log(i);
+        var type = data[i].format;
+        if (type == "pbf" ) {
+          var layer = data[i].vector_layers[0].id;
+        }
+        if (type == "jpg" || type == "jpeg" || type == "JPG" || type == "JPEG" || type== "png" || type == "PNG") {
+          var layer = data[i].id;
+        }
+        var name = ((data[i].basename).split("."));
+
+        var bounds = data[i].bounds;
+        var center = data[i].center;
+        var about = data[i].description;
+        var maxzoom = data[i].maxzoom;
+        //var size = ((data[i].filesize)/1000000).toFixed(2);
+        var format = "";
+        var size = ((data[i].filesize)/1000000).toFixed(2);
+        $("#table").append("<tr><td><a class='btn btn-success btn-sm' style='width:100%;margin-top:4px;' href='preview/index.html?format=" + type + "&tile=" + name[0] + "&layer=" + layer + "&bounds=" + bounds +
+        "&center=" + center + "&maxzoom=" + maxzoom +"' target='_blank'>Preview</a>" + "</td><td><strong>" + name[0] + "</strong><br /><em>" + about + "</em></td><td>" + size + "</td><td>" + type + "</td></tr>");
+      }
+    }
+    $('#example').DataTable({
+        "iDisplayLength": 50
+    });
+});
+$.getJSON('https://tiles.ovrdc.org/space.json', function(data) {
+    console.log(data);
+    $("#free").html(data[0].freespace);
+    $("#total").html(data[0].totalspace);
+    $("#mem").html((data[0].memory).toFixed(2));
+    $("#cpu").html((data[0].cpu).toFixed(1));
+});
+/*$.getJSON('https://tiles.ovrdc.org/tiles.json', function(data) {
+    console.log(data);
+    for(i = 0; i < data.length; i++) {
+
+      console.log('test');
+      var name = data[i].name;
+      var size = ((data[i].filesize)/1000000).toFixed(2);
+      var format = data[i].type;
+      if (data[i].vector_layers[i].id) {
+          var id = data[i].vector_layers[i].id
+      }else{
+          var id = ""
+      }
+      //$("#table").append("<tr><td><a href=" + name + "</td><td>" + size + "</td><td>" + format + "</td></tr>");
+    }
+
+});*/
+
+
+
+</script>
+</html>

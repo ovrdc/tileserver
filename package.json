@@ -1,0 +1,17 @@
+{
+  "name": "tiles",
+  "version": "0.0.0",
+  "description": "",
+  "main": "tileserver.js",
+  "dependencies": {
+    "express": "*",
+    "mbtiles": "*"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": "https://github.com/tobinbradley/mbtiles-server",
+  "author": "Tobin Bradley",
+  "license": "MIT"
+}
