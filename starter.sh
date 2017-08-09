@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# OVRDC - using pm2 for the server instead of 'forever'
 # This would be better in upstart or systemd, but cron works and is a bit easier
 # edit crontab via crontab -e
 # Then stick this in:
