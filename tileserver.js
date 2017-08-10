@@ -10,8 +10,6 @@ var pusage = require('pidusage');
 
 app.use('/preview', express.static(__dirname + '/preview'));
 
-// path to the mbtiles; default is the server.js directory
-//var tilesDir = __dirname;
 var tilesDir = "data/";
 
 /*function getUsage() {
