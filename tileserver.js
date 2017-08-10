@@ -1,6 +1,6 @@
 var express = require("express"),
   app = express(),
-  MBTiles = require('mbtiles'),
+  MBTiles = require('@mapbox/mbtiles'),
   p = require("path"),
   fs = require('fs'),
   path = require('path'),
