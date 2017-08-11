@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OVRDC Tileserver Preview</title>
+  <link rel="stylesheet" type="text/css" href="mapbox-gl.css" />
+  <script src="mapbox-gl.js"></script>
+  <style>
+    body {
+      background: #fff;
+      color: #333;
+      font-family: Arial, sans-serif;
+      margin:0;
+    }
+
+    #map {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 30%;
+      bottom: 0;
+    }
+
+    #sidebar {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 30%;
+      z-index:9999;
+      overflow: auto;
+      border-left: thin solid lightgray;
+    }
+    h3,h6 {margin:8px;}
+    #layerList, #propertyList {
+      margin:8px;
+    }
+    #layerList div div {width:15px;height:15px;display:inline-block;}
+    .inner {
+      padding: 10px;
+    }
+    #map canvas {
+      cursor: crosshair;
+    }
+    #loader {
+      background:white;
+      position: absolute;
+      top:0;
+      left:0;
+	  bottom: 0;
+      width:100%;
+      z-index:9998;
+    }
+	.loader-fadeout {
+	  -webkit-transition: opacity 0.3s ease-in-out;
+	  -moz-transition: opacity 0.3s ease-in-out;
+	  -ms-transition: opacity 0.3s ease-in-out;
+	  -o-transition: opacity 0.3s ease-in-out;
+	  opacity: 0;
+	  z-index:0!important;
+	}
+    #loader-img {
+      background: white;
+      position: absolute;
+      z-index: 9999;
+      top:50%;
+      left:50%;
+	  transform: translate(-50%,-50%);
+    }
+  </style>
+</head>
+
+<body>
+  <div id="map">
+	<div id="loader"><div id="loader-img"><img src="hex-loader2.gif" /></div></div>
+  </div>
+  <div id="sidebar">
+    <div class="inner">
+      <h3>OVRDC Tile Preview</h3>
+      <h6><a href="/">Return to the OVRDC Tileserver</a></h6>
+      <div id="layerList"></div>
+      <pre id="propertyList"></pre>
+    </div>
+  </div>
+  <script>
+    var getQuery = function(q) {
+      if (q) {
+        var params = {},
+          queries, temp, i, l;
+        // Split into key/value pairs
+        queries = q.split("&");
+        // Convert the array of strings into an object
+        for (i = 0, l = queries.length; i < l; i++) {
+          temp = queries[i].split('=');
+          params[temp[0]] = temp[1];
+        }
+        return params;
+      }
+    };
+
+    var query = getQuery((window.location.search).substring(1));
+
+    //console.log(query);
+    var tileUrl, layer, layers, tile, center, format, maxzoom, tile1, tile2, tile3;
+    format = query.format;
+    layer = query.layer;
+    layers = query.layers;
+    var layersArray = layers.split(",");
+    tile = query.tile;
+    bounds = (query.bounds).split(",");
+    center = (query.center).split(",");
+    maxzoom = Number(query.maxzoom);
+    //"https://tiles.ovrdc.org/",tile,
+    tile1 = "https://174.138.45.93/" + tile + "/{" + "z" + "}/" + "{x}/{y}." + format;
+    /*use these for subdomains*/
+    //tile2 = "https://b.tiles.ovrdc.org/" + tile + "/{" + "z" + "}/" + "{x}/{y}." + format;
+    //tile3 = "https://c.tiles.ovrdc.org/" + tile + "/{" + "z" + "}/" + "{x}/{y}." + format;
+    //console.log(unescape(tiles));
+    //console.log(unescape(tileUrl));
+    //alert(tileUrl);
+    var map = new mapboxgl.Map({
+      container: 'map',
+      hash: false,
+      style: 'blank.json',
+      attributionControl: true,
+      pitch: 0, // pitch in degrees
+      bearing: 0, // bearing in degrees
+      center: [center[0], center[1]], // starting position
+      zoom: 8,
+      //debug: true,
+      hash: true,
+      maxZoom: 22,
+      maxBounds: [
+        [bounds[0], bounds[1]],
+        [bounds[2], bounds[3]]
+      ]
+    });
+    map.addControl(new mapboxgl.NavigationControl());
+
+    map.on('load', function() {
+      buildMap();
+    });
+
+    function buildMap() {
+      if (format == "pbf") {
+        map.addSource('preview', {
+          "type": "vector",
+          "tiles": [tile1],//, tile2, tile3],
+          "maxzoom": maxzoom
+        });
+        console.log(map.getSource('preview'));
+        var previewPolygon = {
+          "id": "previewPolygon",
+          "type": "fill",
+          "source": "preview",
+          "source-layer": layersArray[0],
+          "layout": {
+            "visibility": "visible"
+          },
+          "paint": {
+            "fill-color": "white"
+          },
+          "interactive": true,
+        };
+        map.addLayer(previewPolygon);
+        var previewLine = {
+          "id": "previewLine",
+          "type": "line",
+          "source": "preview",
+          "source-layer": layersArray[0],
+          "layout": {
+            "visibility": "visible"
+          },
+          "interactive": true,
+        };
+        map.addLayer(previewLine);
+        var previewCircle = {
+          "id": "previewCircle",
+          "type": "circle",
+          "source": "preview",
+          "source-layer": layersArray[0],
+          "layout": {
+            "visibility": "visible"
+          },
+          "paint": {
+            "circle-radius": 3,
+            "circle-color": "orange"
+          },
+          "interactive": true,
+        };
+        map.addLayer(previewCircle);
+
+		/*map.addLayer({
+			"id": "highlightLayer",
+			"type":"fill",
+			"source": "preview",
+		    "source-layer": layer,
+			"layout":{},
+			"paint": {
+				"fill-color":"goldenrod",
+				"fill-opacity":0
+			}
+		});*/
+        map.on('click', function(e) {
+          var features = map.queryRenderedFeatures(e.point);
+          if (features.length) {
+
+/*			map.setPaintProperty("highlightLayer","fill-opacity", 0.8);*/
+            /*var id = features[0].properties[0];
+            map.setPaintProperty("previewPolygon", "fill-color", {"type": "categorical", "property": "id", "stops": [
+              [0, "red"], [22021, "white"]
+            ]});*/
+            document.getElementById('layerList').innerHTML = layer;
+            document.getElementById('propertyList').innerHTML = JSON.stringify(features[0], null, 2);
+          }
+        });
+      }else{
+        map.addSource("raster-tiles", {
+          "type": "raster",
+          "tiles": [tile1],//, tile2, tile3],
+          "tileSize": 256,
+          "maxzoom": maxzoom
+        });
+        var rasterTilePreview = {
+          "id": "rasterTilePreview",
+          "type": "raster",
+          "source": "raster-tiles"
+        };
+        map.addLayer(rasterTilePreview);
+      }
+      setTimeout(function() {
+		document.getElementById('loader').className = "loader-fadeout";
+      }, 500);
+    }
+  </script>
+</body>
+
+</html>

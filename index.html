@@ -71,14 +71,25 @@ a:hover, a:focus {
 <script src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.13/js/dataTables.bootstrap.min.js"></script>
 <script>
-$.getJSON('https://tiles.ovrdc.org/metadata.json', function(data) {
+$.getJSON('/metadata.json', function(data) {
     console.log('metadata:', data);
     for (i=0; i < data.length; i++) {
       if (data[i] && (data[i].vector_layers || data[i].name)) {
-        //console.log(i);
+        /*console.log(i);*/
         var type = data[i].format;
         if (type == "pbf" ) {
           var layer = data[i].vector_layers[0].id;
+          var layers = data[i].vector_layers;
+          var layerIds = [];
+          console.log('layers: ', layers);
+          //console.log((data[i].vector_layers).length);
+          for (var l=0; l < layers.length; l++) {
+            console.log(layers[l].id);
+            if (layers[l].id) {
+              layerIds.push(layers[l].id);
+            }
+          }
+          console.log(layerIds.toString());
         }
         if (type == "jpg" || type == "jpeg" || type == "JPG" || type == "JPEG" || type== "png" || type == "PNG") {
           var layer = data[i].id;
@@ -92,7 +103,7 @@ $.getJSON('https://tiles.ovrdc.org/metadata.json', function(data) {
         //var size = ((data[i].filesize)/1000000).toFixed(2);
         var format = "";
         var size = ((data[i].filesize)/1000000).toFixed(2);
-        $("#table").append("<tr><td><a class='btn btn-success btn-sm' style='width:100%;margin-top:4px;' href='preview/index.html?format=" + type + "&tile=" + name[0] + "&layer=" + layer + "&bounds=" + bounds +
+        $("#table").append("<tr><td><a class='btn btn-success btn-sm' style='width:100%;margin-top:4px;' href='preview/index.html?format=" + type + "&tile=" + name[0] + "&layer=" + layer + "&layers=" + layerIds.toString() + "&bounds=" + bounds +
         "&center=" + center + "&maxzoom=" + maxzoom +"' target='_blank'>Preview</a>" + "</td><td><strong>" + name[0] + "</strong><br /><em>" + about + "</em></td><td>" + size + "</td><td>" + type + "</td></tr>");
       }
     }
@@ -100,7 +111,7 @@ $.getJSON('https://tiles.ovrdc.org/metadata.json', function(data) {
         "iDisplayLength": 50
     });
 });
-$.getJSON('https://tiles.ovrdc.org/space.json', function(data) {
+$.getJSON('/space.json', function(data) {
     console.log(data);
     $("#free").html(data[0].freespace);
     $("#total").html(data[0].totalspace);

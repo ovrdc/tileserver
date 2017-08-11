@@ -4,44 +4,88 @@ var express = require("express"),
   p = require("path"),
   fs = require('fs'),
   path = require('path'),
-  diskspace = require('diskspace');
-require('prototypes');
-var pusage = require('pidusage');
+  diskspace = require('diskspace'),
+  pusage = require('pidusage');
 
-app.use('/preview', express.static(__dirname + '/preview'));
+require('prototypes');
 
 var tilesDir = "data/";
 
-/*function getUsage() {
-	mem = "";
-	space = [];
-	//usage and diskspace monitoring
-	pusage.stat(process.pid, function(err, stat) {
+app.use('/preview', express.static(__dirname + '/preview'));
 
-	  mem = stat.memory/1048576;
-	  space.push({memory: mem});
-		console.log('Pcpu: %s', stat.cpu)
-		console.log('Mem: %s', stat.memory/1048576) //those are bytes
+/* Set return header*/
+function getContentType(t) {
+  var header = {};
 
-	})
+  /* CORS*/
+  header["Access-Control-Allow-Origin"] = "*";
+  header["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept";
 
-	// Unmonitor process
-	pusage.unmonitor(process.pid);
+  /* Cache*/
 
-	diskspace.check('/', function(err, total, free, status) {
-	  var f = (free/1073741824).toFixed(2);
-	  var t = (total/1073741824).toFixed(2);
-	  space.push({freespace: f, totalspace: t, memory: mem});
-	  console.log(free, total);
-	});
+  if (t === "json") {
+    header["Cache-Control"] = "no-cache, no-store, must-revalidate";
+  }
+
+  /* request specific headers*/
+  if (t === "png") {
+    header["Content-Type"] = "image/png";
+    header["Cache-Control"] = "public, max-age=604800";
+  }
+  if (t === "jpg") {
+    header["Content-Type"] = "image/jpeg";
+    header["Cache-Control"] = "public, max-age=604800";
+  }
+  if (t === "pbf") {
+    header["Content-Type"] = "application/x-protobuf";
+    header["Content-Encoding"] = "gzip";
+    header["Cache-Control"] = "public, max-age=604800";
+  }
+
+  return header;
 }
 
-getUsage();*/
+/* tile cannon adapted from mbtiles-server */
+app.get('/:s/:z/:x/:y.:t', function(req, res) {
+  /*console.log(req.params);*/
+  var fileCheck = tilesDir + req.params.s + '.mbtiles';
+  /*prevent app from creating empty mbtiles file if the file is requested but does not exist*/
+  if (fs.existsSync(fileCheck)) {
+    /*console.log(fileCheck);*/
+    new MBTiles(p.join(tilesDir, req.params.s + '.mbtiles'), function(err, mbtiles) {
+      //console.log(req.params);
+      mbtiles.getTile(req.params.z, req.params.x, req.params.y, function(err, tile, headers) {
+        if (err) {
+          res.set({
+            "Access-Control-Allow-Origin": "*"
+          });
+          res.set({
+            "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"
+          });
+          res.set({
+            "Content-Type": "text/plain"
+          });
+          /*added for when there are no tiles at this location but the mbtiles file does exist*/
+          res.status(204).send('Tile rendering error: ' + err + '\n');
+        } else {
+          res.set(getContentType(req.params.t));
+          res.send(tile);
+        }
+      });
+      if (err) console.log("error opening database");
+    });
+  }
+});
 
-//attempt to read tilesource URI using MBTiles.list
-/*MBTiles.list(tilesDir, function(err, uriList) {
-  if (err) {console.log(err)}
-  console.log(uriList)
+/*set request options for index, json and loader files*/
+
+//Need help here with getting any json I create in this app to send - just have individual ones right now
+/*app.get("/:d.:f", function(req, res) {
+  if (req.params.f == 'json') {
+  res.set(getContentType("json"));
+  console.log(this[req.params.d].value);
+  res.send(window[name].value);
+  }
 });*/
 
 /*create a tiles object that has all mbtiles in it and a metadata objec that has all tile metadata in it*/
@@ -87,80 +131,6 @@ function getTileData(e, callback) {
 }
 
 getTileData();
-
-/* Set return header*/
-function getContentType(t) {
-  var header = {};
-
-  /* CORS*/
-  header["Access-Control-Allow-Origin"] = "*";
-  header["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept";
-
-  /* Cache*/
-
-  if (t === "json") {
-    header["Cache-Control"] = "no-cache, no-store, must-revalidate";
-  }
-
-  /* request specific headers*/
-  if (t === "png") {
-    header["Content-Type"] = "image/png";
-    header["Cache-Control"] = "public, max-age=604800";
-  }
-  if (t === "jpg") {
-    header["Content-Type"] = "image/jpeg";
-    header["Cache-Control"] = "public, max-age=604800";
-  }
-  if (t === "pbf") {
-    header["Content-Type"] = "application/x-protobuf";
-    header["Content-Encoding"] = "gzip";
-    header["Cache-Control"] = "public, max-age=604800";
-  }
-
-  return header;
-}
-
-/* tile cannon adapted from mbtiles-server */
-app.get('/:s/:z/:x/:y.:t', function(req, res) {
-  /*console.log(req.params);*/
-  var fileCheck = tilesDir + req.params.s + '.mbtiles';
-  if (fs.existsSync(fileCheck)) {
-    /*console.log(fileCheck);*/
-    new MBTiles(p.join(tilesDir, req.params.s + '.mbtiles'), function(err, mbtiles) {
-      //console.log(req.params);
-      mbtiles.getTile(req.params.z, req.params.x, req.params.y, function(err, tile, headers) {
-        /*added for when there are no tiles at this location but the mbtiles file does exist*/
-        if (err) {
-          res.set({
-            "Access-Control-Allow-Origin": "*"
-          });
-          res.set({
-            "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"
-          });
-          res.set({
-            "Content-Type": "text/plain"
-          });
-          res.status(204).send('Tile rendering error: ' + err + '\n');
-        } else {
-          res.set(getContentType(req.params.t));
-          res.send(tile);
-        }
-      });
-      if (err) console.log("error opening database");
-    });
-  }
-});
-
-/*set request options for index, json and loader files*/
-
-//Need help here with getting any json I create in this app to send - just have individual ones right now
-/*app.get("/:d.:f", function(req, res) {
-  if (req.params.f == 'json') {
-  res.set(getContentType("json"));
-  console.log(this[req.params.d].value);
-  res.send(window[name].value);
-  }
-});*/
 
 app.get('/', function(req, res) {
   if (req.url == '/' || req.url == "/index.html") {
