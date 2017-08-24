@@ -3,7 +3,7 @@ ovrdc-tileserver
 
 This is fork of Tobin Bradley's mbtiles-server which is a fork of Christopher Helm's [mbtiles-server](https://github.com/chelm/mbtiles-server) - see below for Tobin Bradley's description. 
 
-These results using ```loadtest``` are from the smallest Digital Ocean droplet requesting one pbf file from an mbtiles file, proxied with NGINX. An average map takes around 30-70 requests to render.
+These results using ```loadtest``` are from the smallest Digital Ocean droplet requesting one pbf file from an mbtiles file, proxied with NGINX. An average map takes around 30-70 requests to render. Is this good? Seems like it, especially for smaller municipal government apps, which is our domain.
 
 ```
  INFO Max time (s):        10
