@@ -1,12 +1,12 @@
 var express = require("express"),
   app = express(),
-  MBTiles = require('@mapbox/mbtiles'),
+  MBTiles = require('mbtiles'),
   p = require("path"),
   fs = require('fs'),
   path = require('path'),
   diskspace = require('diskspace'),
-  pusage = require('pidusage'),
-  config = require('./config'); /* thanks tilehut*/
+  pusage = require('pidusage');
+  //config = require('./config'); /* thanks tilehut*/
 
 require('prototypes');
 
@@ -35,7 +35,7 @@ function getContentType(t) {
     header["Cache-Control"] = "public, max-age=604800";
   }
   if (t === "pbf") {
-    header["Content-Type"] = "application/octet-stream";
+    header["Content-Type"] = "application/x-protobuf";
     header["Content-Encoding"] = "gzip";
     header["Cache-Control"] = "public, max-age=604800";
   }
@@ -44,15 +44,13 @@ function getContentType(t) {
 }
 
 /*Preview directory may change to map preview or something more readable*/
-app.use('/preview', express.static(config.PREVIEW_DIR));
+app.use('/preview', express.static(path.join(__dirname, 'preview')))
 
 /*tiles directory, this will change to a config file in the new version, and will likely change to something like mbtiles-data, since there will probably be a geojson directory and maybe a shapefile directory*/
-var tilesDir = config.TILES_DIR;
-var dataDir = config.DATA_DIR;
+var tilesDir = 'data/';
 
 /*create a tiles object that has all mbtiles in it and a metadata objec that has all tile metadata in it*/
 var tiles, metadata, fileNumber, newFileNumber, tileindex;
-var dataindex = [];;
 
 function getTileData(e, callback) {
 
@@ -98,24 +96,8 @@ function getTileData(e, callback) {
 
 getTileData();
 
-function buildDataIndex(e) {
-  fs.readdir(e, function(err, files) {
-    if (err) throw err;
-    files.forEach(function(file) {
-      //console.log('files: ' + file);
-      if (file.endsWith('.geojson') || file.endsWith('.json') || file.endsWith('topojson')) {
-        dataindex.push(file);
-      }
-    });
-  })
-};
-
-
-
-buildDataIndex(dataDir);
-
 function buildIndex() {
-  if (metadata.length > 0 && dataindex.length >0) {
+  if (metadata.length > 0) {
     tileindex = metadata.reduce(function(sum, val, index) {
       var x = (val.basename).substringUpTo('.mbtiles');
       return sum + x;
@@ -254,26 +236,9 @@ app.get('/index.html', function(req, res) {
   fs.createReadStream('index.html').pipe(res);
 });
 
-app.get('/data/:d.:t', function(req, res) {
-  //console.log(req.params.d);
-  var reqfile = req.params.d + "." + req.params.t;
-  //console.log(reqfile);
-  if (req.params.d == "dataindex") {
-    res.set(getContentType("json"));
-    res.send(dataindex);
-    return false;
-  }
-  if (dataindex.indexOf(reqfile) >= 0) {
-    fs.readFile((dataDir + reqfile), function(err, data) {
-      if (err) {
-        res.status(404).send('Could not find any data 2.');
-      }
-      res.set(getContentType("json"));
-      res.send(data)
-    })
-  }else{
-    return res.status(404).send('Could not find any data.');
-  }
+app.get('/loaderio-e9020011b3d721afa9b9a497fc6d24a3.html', function(req, res) {
+  console.log('loader');
+  fs.createReadStream('loaderio-e9020011b3d721afa9b9a497fc6d24a3.html').pipe(res);
 });
 
 /*app.get('/space.json', function(req, res) {
@@ -314,7 +279,7 @@ app.get('/data/:d.:t', function(req, res) {
   }
 });*/
 
-/*app.get('/tileserver.json', function(req, res) {
+/*app.get('/tiles.json', function(req, res) {
 
   fs.readdir(tilesDir, function(err, files) {
     if (err) throw err;
@@ -333,5 +298,5 @@ app.get('/data/:d.:t', function(req, res) {
 /*end stats and static files*/
 
 /*start up the server*/
-console.log('Listening on port: ' + config.PORT);
-app.listen(config.PORT);
+console.log('Listening on port: ' + 3000);
+app.listen(3000);
