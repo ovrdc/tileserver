@@ -110,8 +110,6 @@ function buildDataIndex(e) {
   })
 };
 
-
-
 buildDataIndex(dataDir);
 
 function buildIndex() {
@@ -181,6 +179,15 @@ app.get('/:s/:z/:x/:y.:t', function(req, res) {
   }
 });
 
+app.get('/:s/:z/:x/:y.*grid.json$', function(req, res) {
+  if (err) return done(err);
+  mbtiles.getGrid(that.q.params.z, that.q.params.x, that.q.params.y, function(err, tile, headers) {
+    if (err) return res.status(404).send(err.message);
+    res.send(tile);
+  });
+});
+
+
 /*mbtile raw metadata for each tile thansk @joeyklee*/
 app.get('/:s/meta.json', function(req, res) {
   var mbtilesFile = tilesDir + req.params.s + '.mbtiles';
@@ -218,8 +225,10 @@ app.get('/:s/tile.json', function(req, res) {
           "version": "1.0.0",
           "attribution": info.attribution,
           "scheme": info.scheme,
+          
+          /*grids do not have a format so this wont work for utf grids*/
           "tiles": [
-              config.URL + ":" + config.PORT + req.params.s + "/{z}/{x}/{y}." + info.format,
+              config.URL + ":" + config.PORT + "/" + req.params.s + "/{z}/{x}/{y}." + info.format,
           ],
           "minzoom": info.minzoom,
           "maxzoom": info.maxzoom,
