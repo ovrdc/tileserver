@@ -25,7 +25,9 @@ These results using ```loadtest``` are from the second smallest Digital Ocean dr
 
 ```
 
-mbtiles-server
+This fork also uses some code from tilehut, another great implementation of an mbtiles server.
+
+mbtiles-server original readme
 ==============
 
 This is a fork of Christopher Helm's awesome [mbtiles-server](https://github.com/chelm/mbtiles-server). All credit should be flung at him. The changes in this fork are:
