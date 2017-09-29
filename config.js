@@ -6,7 +6,8 @@ var config = {
   PORT: 3000,
   TILES_DIR: path.join(__dirname, '/tiles/'),
   PREVIEW_DIR: path.join(__dirname, '/preview/'),
-  DATA_DIR: path.join(__dirname, '/data/')
+  DATA_DIR: path.join(__dirname, '/data/'),
+  URL_DIR: "http://127.0.0.1"
 }
 
 module.exports = config;

@@ -168,11 +168,8 @@
     bounds = (query.bounds).split(",");
     center = (query.center).split(",");
     maxzoom = Number(query.maxzoom);
-    tile1 = "http://127.0.0.1:3000/" + tile + "/{z}/{x}/{y}." + format;
-    /*tile1 = "https://a.tileserver.ovrdc.org/" + tile + "/{" + "z" + "}/" + "{x}/{y}." + format;
-    tile2 = "https://b.tileserver.ovrdc.org/" + tile + "/{" + "z" + "}/" + "{x}/{y}." + format;
-    tile3 = "https://c.tileserver.ovrdc.org/" + tile + "/{" + "z" + "}/" + "{x}/{y}." + format;
-    tile4 = "https://tileserver.ovrdc.org/" + tile + "/{" + "z" + "}/" + "{x}/{y}." + format;*/
+    //tile1 = "https://174.138.45.93/" + tile + "/{z}/{x}/{y}." + format;
+    tile1 = "http://127.0.0.1:3000/" + tile + "/{" + "z" + "}/" + "{x}/{y}." + format;
     //console.log(unescape(tiles));
     var map = new mapboxgl.Map({
       container: 'map',

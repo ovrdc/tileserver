@@ -219,10 +219,7 @@ app.get('/:s/tile.json', function(req, res) {
           "attribution": info.attribution,
           "scheme": info.scheme,
           "tiles": [
-              "https://127.0.0.1:3000" + req.params.s + "/{z}/{x}/{y}." + info.format
-              /*"https://b.tileserver.ovrdc.org/" + req.params.s + "/{z}/{x}/{y}." + info.format,
-              "https://c.tileserver.ovrdc.org/" + req.params.s + "/{z}/{x}/{y}." + info.format,
-              "https://tileserver.ovrdc.org/" + req.params.s + "/{z}/{x}/{y}." + info.format*/
+              config.URL + ":" + config.PORT + req.params.s + "/{z}/{x}/{y}." + info.format,
           ],
           "minzoom": info.minzoom,
           "maxzoom": info.maxzoom,
