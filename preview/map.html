@@ -278,6 +278,7 @@
           });
         }
         console.log(mapLayers);
+        var tilejson = "/meta/" + tile + "-tilejson.json";
         map.setStyle({
         	"version": 8,
         	"name": "blank",
@@ -288,15 +289,16 @@
         		},
             'preview': {
               "type": "vector",
-              "tiles": [tile1, tile2, tile3, tile4],
-              "maxzoom": maxzoom
+              "url": tilejson
+              //"tiles": [tile1, tile2, tile3, tile4],
+              //"maxzoom": maxzoom
             }
         	},
         	"layers": mapLayers
         });
         map.addControl(new MapboxInspect({
           showInspectMap: true,
-          showInspectButton: false,
+          showInspectButton: true,
           selectThreshold: 10,
           showMapPopup: true,
           showMapPopupOnHover: false,
@@ -322,11 +324,12 @@
           }
         });
       } else {
+        var tilejson = "/meta/" + tile + "-tilejson.json";
         map.addSource("raster-tiles", {
           "type": "raster",
-          "tiles": [tile1, tile2, tile3, tile4],// tile2, tile3],
-          "tileSize": 256,
-          "maxzoom": maxzoom
+          "url": tilejson
+/*          "tileSize": 256,
+          "maxzoom": maxzoom*/
         });
         var rasterTilePreview = {
           "id": "rasterTilePreview",

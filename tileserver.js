@@ -6,9 +6,25 @@ var express = require("express"),
   path = require('path'),
   diskspace = require('diskspace'),
   pusage = require('pidusage'),
+  cors = require('cors');
   config = require('./config'); /* thanks tilehut*/
 
 require('prototypes');
+
+app.use(cors());
+
+/* Preview directory for map preview may change to map preview or something more readable*/
+app.use('/preview', express.static(config.PREVIEW_DIR));
+
+/*
+* Directory for the metadata, dataindex and tilejson files
+* Files in this directory are created each time the app is reloaded, so beware if you have hundreds of vector tile files in the tiles directory, may want to switch to not overwiting files if they are the same
+*/
+app.use('/meta', express.static(config.META_DIR));
+
+/*
+* Directory for openmaptile styles is handled directly by the NGINX server, not this node server
+*/
 
 /* Set return header*/
 function getContentType(t) {
@@ -43,17 +59,24 @@ function getContentType(t) {
   return header;
 }
 
-/*Preview directory may change to map preview or something more readable*/
-app.use('/preview', express.static(config.PREVIEW_DIR));
-
-/*tiles directory, this will change to a config file in the new version, and will likely change to something like mbtiles-data, since there will probably be a geojson directory and maybe a shapefile directory*/
+/*
+* tiles  and data directory
+*/
 var tilesDir = config.TILES_DIR;
 var dataDir = config.DATA_DIR;
 
-/*create a tiles object that has all mbtiles in it and a metadata objec that has all tile metadata in it*/
+/*
+* Create global variables for use later
+*/
 var tiles, metadata, fileNumber, newFileNumber, tileindex;
 var dataindex = [];;
 
+/*
+* build metadata and tilejson for all tiles and each tile in the tiles directory and write to
+* meta/metadata.json, meta/tilename-metadata.json and meta/tilename-tilejson.json
+* THe metadata is used to create the data portal
+* this could take a while depending on how many tiles are in the directory
+*/
 function getTileData(e, callback) {
 
   tiles = [];
@@ -72,9 +95,46 @@ function getTileData(e, callback) {
         //get metadata from mbtiles to show on an indexpage and to create the preview map
         new MBTiles(tilePath, function(err, mbtiles) {
           if (err) throw err;
-          mbtiles.getInfo(function(err, meta) {
+          mbtiles.getInfo(function(err, info) {
             if (err) throw err;
-            metadata.push(meta)
+            metadata.push(info)
+            var tilename = file.slice(0, -8);
+            /*write tile metadata*/
+            fs.writeFile("meta/"+ tilename +"-metadata.json", JSON.stringify(info), function(err) {
+              if (err) {
+                return console.log(err)
+              }
+            });
+            /*build tilejson*/
+            if (info["vector_layers"]){
+              var vl = info["vector_layers"]
+            }else{
+              vl = []
+            }
+            var tilejson = {
+              "tilejson": "1.0.0",
+              "name": info.name,
+              "description": info.description,
+              "version": "1.0.0",
+              "attribution": info.attribution,
+              "scheme": info.scheme,
+              "tiles": [
+                  "https://" + config.URL + tilename + "/{z}/{x}/{y}." + info.format,
+                  "https://" + config.SUBDOMAINS[0] + "." + config.URL + tilename + "/{z}/{x}/{y}." + info.format,
+                  "https://" + config.SUBDOMAINS[1] + "." + config.URL + tilename + "/{z}/{x}/{y}." + info.format,
+                  "https://" + config.SUBDOMAINS[2] + "." + config.URL + tilename + "/{z}/{x}/{y}." + info.format
+              ],
+              "vector_layers": vl,
+              "minzoom": info.minzoom,
+              "maxzoom": info.maxzoom,
+              "bounds": info.bounds
+            };
+            /*write tilejson*/
+            fs.writeFile("meta/"+ filename +"-tilejson.json", JSON.stringify(tilejson), function(err) {
+              if (err) {
+                return console.log(err)
+              }
+            });
           });
         });
         var ext0 = path.extname(file);
@@ -93,6 +153,7 @@ function getTileData(e, callback) {
         });
       }
     });
+    console.log('metadata complete');
   });
 }
 
@@ -103,8 +164,13 @@ function buildDataIndex(e) {
     if (err) throw err;
     files.forEach(function(file) {
       //console.log('files: ' + file);
-      if (file.endsWith('.geojson') || file.endsWith('.json') || file.endsWith('topojson')) {
+      if (file.endsWith('.geojson') || file.endsWith('.json') || file.endsWith('.topojson')) {
         dataindex.push(file);
+      }
+    });
+    fs.writeFile("meta/dataindex.json", dataindex, function(err) {
+      if (err) {
+        return console.log(err)
       }
     });
   })
@@ -114,12 +180,27 @@ function buildDataIndex(e) {
 
 buildDataIndex(dataDir);
 
+/*
+* build simple index to test against when requesting tiles, waiting for metadata to finish
+*/
+
 function buildIndex() {
-  if (metadata.length > 0 && dataindex.length >0) {
+  if (metadata.length > 0 && dataindex.length > 0) {
     tileindex = metadata.reduce(function(sum, val, index) {
       var x = (val.basename).substringUpTo('.mbtiles');
       return sum + x;
     }, "");
+    fs.writeFile("meta/tileindex.json", tileindex, function(err) {
+      if (err) {
+        return console.log(err)
+      }
+    });
+    fs.writeFile("meta/metadata.json", JSON.stringify(metadata), function(err) {
+      if (err) {
+        return console.log(err)
+      }
+    });
+    /*console.log(tileindex);*/
   }else {
     setTimeout(function() {
       buildIndex()
@@ -128,6 +209,10 @@ function buildIndex() {
 }
 
 buildIndex();
+
+/*
+* build and write a tilejson for each mbtiles in the tiles directory - writing to meta/tilename-tilejson.json
+*/
 
 app.get('/metadata.json', function(req, res) {
   fs.readdir(tilesDir, function(err, files) {
@@ -209,7 +294,11 @@ app.get('/:s/tile.json', function(req, res) {
       mbtiles.getInfo(function(err, info) {
         //if (err) return done(new Error('cannot get metadata'));
         if (err) return res.status(404).send(err.message);
-
+        if (info["vector_layers"]){
+          var vl = info["vector_layers"]
+        }else{
+          vl = []
+        }
         /* should change the tiles urls to a config setting*/
         var tilejson = {
           "tilejson": "1.0.0",
@@ -224,6 +313,7 @@ app.get('/:s/tile.json', function(req, res) {
               "https://c.tileserver.ovrdc.org/" + req.params.s + "/{z}/{x}/{y}." + info.format,
               "https://tileserver.ovrdc.org/" + req.params.s + "/{z}/{x}/{y}." + info.format
           ],
+          "vector_layers": vl,
           "minzoom": info.minzoom,
           "maxzoom": info.maxzoom,
           "bounds": info.bounds
