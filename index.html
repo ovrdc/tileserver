@@ -400,14 +400,14 @@
           data: [Number((d.freespace).toFixed(2)), Number(used)]
         }]
       };
-
+      var currentMemory = 1000 - d.memory;
       memChartData = {
         labels: ["Free", "Used"],
         datasets: [{
           label: "Memory",
           //color: "#5cb85c",
           backgroundColor: ["hsl(204, 86%, 53%)", "hsl(48, 100%, 67%)"],
-          data: [1000, d.memory]
+          data: [currentMemory, d.memory]
         }]
       }
       Chart.defaults.global.animation.duration = 1800;
