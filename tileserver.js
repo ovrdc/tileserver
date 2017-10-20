@@ -76,7 +76,7 @@ var dataDir = config.DATA_DIR;
 */
 var tiles, metadata, fileNumber, newFileNumber, tileindex;
 var dataindex = [];
-var requests = 0;
+var requests = 10;
 
 /*
 * build metadata and tilejson for all tiles and each tile in the tiles directory and write to
@@ -390,25 +390,38 @@ app.get('/data/:d.:t', function(req, res) {
   }
 });
 
+/*
+* get space.json to add to old requests
+*/
+
+var oldSpace, space = [];
+fs.readFile('./meta/space.json', 'utf8', function (err, data) {
+  if (err) throw err;
+  oldSpace = JSON.parse(data);
+  requests = oldSpace[0].requests + requests;
+  console.log(requests);
+  checkServer();
+});
+
 function checkServer() {
   var mem = 0;
-  var space = [];
   var cpu = 0;
   if (config.SYSTEM === 'win') {
     var drive = "C:"
   }else{
-    dirve = "/"
+    drive = "/"
   }
   diskspace.check(drive, function(err, server) {
     if (err) throw err;
     //console.log(server);
+    space = [];
     var f = (server.free / 1073741824).toFixed(2);
     var t = (server.total / 1073741824).toFixed(2);
     space.push({
       freespace: f,
       totalspace: t,
       memory: mem,
-      cpu: cpu
+      cpu: cpu,
     });
     //console.log(free, total);
     checkUsage()
@@ -419,7 +432,7 @@ function checkServer() {
       if (err) throw err;
       //console.log(stat);
       mem = (stat.memory / 1048576);
-      space[0].memory = mem;
+      space[0].memory = mem.toFixed(2);
       space[0].cpu = stat.cpu;
       space[0].requests = requests;
       //console.log('Pcpu: %s', stat.cpu);
@@ -439,12 +452,12 @@ function checkServer() {
       }
     });
   }
+  console.log(space[0])
 }
-checkServer()
 
 if (config.MONIT && config.MONIT === true) {
   console.log('monitoring space and memory every minute')
-  setInterval(checkServer, 60*1000)
+  setInterval(checkServer, 10*1000)
 }
 
 /*end stats and static files*/
