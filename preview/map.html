@@ -169,7 +169,10 @@
     center = (query.center).split(",");
     maxzoom = Number(query.maxzoom);
     //tile1 = "https://174.138.45.93/" + tile + "/{z}/{x}/{y}." + format;
-    tile1 = "http://127.0.0.1:3000/" + tile + "/{" + "z" + "}/" + "{x}/{y}." + format;
+    tile1 = "http://127.0.0.1:3000/" + tile + "/{z}/{x}/{y}." + format;
+    tile2 = "https://b.tileserver.ovrdc.org/" + tile + "/{" + "z" + "}/" + "{x}/{y}." + format;
+    tile3 = "https://c.tileserver.ovrdc.org/" + tile + "/{" + "z" + "}/" + "{x}/{y}." + format;
+    tile4 = "https://tileserver.ovrdc.org/" + tile + "/{" + "z" + "}/" + "{x}/{y}." + format;
     //console.log(unescape(tiles));
     var map = new mapboxgl.Map({
       container: 'map',
@@ -275,6 +278,8 @@
           });
         }
         console.log(mapLayers);
+        var tilejson = "/meta/" + tile + "-tilejson.json";
+        console.log(tilejson);
         map.setStyle({
         	"version": 8,
         	"name": "blank",
@@ -285,15 +290,16 @@
         		},
             'preview': {
               "type": "vector",
-              "tiles": [tile1],//, tile2, tile3, tile4],
-              "maxzoom": maxzoom
+              "url": tilejson
+              //"tiles":["http://localhost/counties/{z}/{x}/{y}.pbf"],
+              //"maxzoom": maxzoom
             }
         	},
         	"layers": mapLayers
         });
         map.addControl(new MapboxInspect({
           showInspectMap: true,
-          showInspectButton: false,
+          showInspectButton: true,
           selectThreshold: 10,
           showMapPopup: true,
           showMapPopupOnHover: false,
@@ -319,11 +325,12 @@
           }
         });
       } else {
+        var tilejson = "/meta/" + tile + "-tilejson.json";
         map.addSource("raster-tiles", {
           "type": "raster",
-          "tiles": [tile1, tile2, tile3, tile4],// tile2, tile3],
-          "tileSize": 256,
-          "maxzoom": maxzoom
+          "url": tilejson
+/*          "tileSize": 256,
+          "maxzoom": maxzoom*/
         });
         var rasterTilePreview = {
           "id": "rasterTilePreview",
