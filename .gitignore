@@ -3,5 +3,5 @@ node_modules/
 app/
 data-raw/
 *.mbtiles
-meta/*
+meta/
 tiles/
