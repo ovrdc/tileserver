@@ -7,11 +7,7 @@
   <link rel="stylesheet" href="https://cdn.datatables.net/1.10.13/css/dataTables.bootstrap.min.css" />
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,800" rel="stylesheet">
   <style>
-<<<<<<< HEAD
-  * {
-=======
     * {
->>>>>>> 520f68dd3ba6cd33fee6d2af4af83218ea385365
       font-family: "Open Sans", "Segoe UI", sans-serif;
     }
 
@@ -19,18 +15,12 @@
     th {
       color: #5cb85c;
     }
-<<<<<<< HEAD
-    b, strong {
-      font-weight: 600;
-    }
-=======
 
     b,
     strong {
       font-weight: 600;
     }
 
->>>>>>> 520f68dd3ba6cd33fee6d2af4af83218ea385365
     a:hover,
     a:focus {
       color: #449d44;
@@ -55,10 +45,7 @@
         text-align: left!important;
       }
     }
-<<<<<<< HEAD
-=======
 
->>>>>>> 520f68dd3ba6cd33fee6d2af4af83218ea385365
     @media screen and (max-width:600px) {
       thead {
         display: none;
@@ -67,11 +54,7 @@
       table.cards {
         background-color: transparent;
         border: none;
-<<<<<<< HEAD
-        padding:10px 10px 10px 0;
-=======
         padding: 10px 10px 10px 0;
->>>>>>> 520f68dd3ba6cd33fee6d2af4af83218ea385365
       }
 
       .cards td,
@@ -82,32 +65,12 @@
 
       /*--[  This does the job of making the table rows appear as cards ]----------------*/
       .cards tbody img {
-<<<<<<< HEAD
-          height: 100px;
-=======
         height: 100px;
->>>>>>> 520f68dd3ba6cd33fee6d2af4af83218ea385365
       }
       .cards td:nth-child(1) {
         border-top: none;
       }
       .cards tbody tr {
-<<<<<<< HEAD
-          float: left;
-          margin-bottom: 20px;
-          border: 1px solid #ddd;
-          box-shadow:3px 3px 8px rgba(0,0,0,.05);
-          background-color: white!important;
-          /*padding: 8px;*/
-          border-radius: 4px;
-      }
-      .cards tbody td {
-        padding:10px!important;
-        display: block;
-        width: -webkit-calc(100% - 20px);
-        width:    -moz-calc(100% - 20px);
-        width:         calc(100% - 20px);
-=======
         float: left;
         margin-bottom: 20px;
         border: 1px solid #ddd;
@@ -122,7 +85,6 @@
         width: -webkit-calc(100% - 20px);
         width: -moz-calc(100% - 20px);
         width: calc(100% - 20px);
->>>>>>> 520f68dd3ba6cd33fee6d2af4af83218ea385365
         overflow: hidden;
         text-align: left;
         margin: 5px 0;
@@ -130,34 +92,6 @@
       }
 
       .table tbody label {
-<<<<<<< HEAD
-          display: none;
-          margin-right: 5px;
-          width: 50px;
-      }
-      .table .glyphicon {
-          font-size: 20px;
-      }
-
-      .cards .glyphicon {
-          font-size: 75px;
-      }
-
-      .cards tbody label {
-          display: inline;
-          position: relative;
-          font-size: 85%;
-          font-weight: normal;
-          top: -5px;
-          left: -3px;
-          float: left;
-          color: #808080;
-      }
-      .cards tbody td:nth-child(1) {
-          text-align: center;
-      }
-    }
-=======
         display: none;
         margin-right: 5px;
         width: 50px;
@@ -202,36 +136,11 @@
       vertical-align: middle;
       float: none;
     }
->>>>>>> 520f68dd3ba6cd33fee6d2af4af83218ea385365
   </style>
 </head>
 
 <body>
   <div class="container">
-<<<<<<< HEAD
-    <h1><a href="http://www.ovrdc.org/gis">OVRDC</a> Tile Server</h1>
-    <div id="stats" style="display:none;">
-      <h5>Server: <span id="free"></span> GB free of <span id="total"></span> GB</h5>
-      <h5>CPU Usage: <span id="cpu"></span>&#37;&nbsp;Memory Usage: <span id="mem"></span> MB</h5>
-    </div>
-    <h2>Available Data</h2>
-    <h5><a href="https://maputnik.github.io/editor" target="_blank">Maputnik Editor</a></h5>
-    <em>To style data in Maputnik, copy the tilejson link and paste into Maputnik as a 'source'. Take note of the tile and layer name first.</em>
-    <br><br>
-    <div></div>
-    <table id="example" class="table table-striped table-bordered cards" cellspacing="0" width="100%">
-      <thead>
-        <tr>
-          <th>File Name & Description</th>
-          <th>Size (MB)</th>
-          <th>Type</th>
-          <th>
-            Preview
-          </th>
-        </tr>
-      </thead>
-      <!--tfoot>
-=======
     <nav class="navbar">
       <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
@@ -323,7 +232,6 @@
       <div class="">
         <table id="example" class="table table-striped table-bordered cards" cellspacing="0" width="100%">
           <thead>
->>>>>>> 520f68dd3ba6cd33fee6d2af4af83218ea385365
             <tr>
               <th>File Name & Description</th>
               <th>Size (MB)</th>
@@ -332,18 +240,6 @@
                 Preview
               </th>
             </tr>
-<<<<<<< HEAD
-        </tfoot-->
-      <tbody id="table">
-      </tbody>
-    </table>
-    <h3>To Do:</h3>
-    <ul>
-      <li>When uploading mbtiles, also upload the original geojson file, and add that as a 'download' link or convert lowest level of mbtile back to geojson.</li>
-      <li>Add a link to a very simple style to edit directly in Maputnik or just change the preview tab to be Maputnik!</li>
-      <li>Figure out a way to get some sort of preview image for the tiles?</li>
-    </ul>
-=======
           </thead>
           <!--tfoot>
                 <tr>
@@ -368,7 +264,6 @@
         <li>Figure out a way to get some sort of preview image for the tiles?</li>
       </ul>
     </div>
->>>>>>> 520f68dd3ba6cd33fee6d2af4af83218ea385365
   </div>
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
@@ -378,26 +273,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.bundle.min.js" integrity="sha256-OHkZxrR7EXZQ8MlUC+Ww2+RedaJSP6DEsAukSt023dU=" crossorigin="anonymous"></script>
 <script src="/static/countup.js"></script>
 <script>
-<<<<<<< HEAD
-var metadata;
-  $.getJSON('/meta/metadata.json', function(data) {
-    console.log('metadata:', data);
-    metadata = data;
-    for (i = 0; i < data.length; i++) {
-      if (data[i] && (data[i].vector_layers || data[i].name)) {
-        /*console.log(i);*/
-        var type = data[i].format;
-        if (type == "pbf") {
-          var layer = data[i].vector_layers[0].id;
-          var layers = data[i].vector_layers;
-          var layerIds = [];
-          /*console.log('layers: ', layers);*/
-          //console.log((data[i].vector_layers).length);
-          for (var l = 0; l < layers.length; l++) {
-            /*console.log(layers[l].id);*/
-            if (layers[l].id) {
-              layerIds.push(layers[l].id);
-=======
   var metadata, driveChart, driveChartData, memChartData;
   $(document).ready(function() {
     $.ajaxSetup({
@@ -434,64 +309,9 @@ var metadata;
               if (layers[l].id) {
                 layerIds.push(layers[l].id);
               }
->>>>>>> 520f68dd3ba6cd33fee6d2af4af83218ea385365
             }
             /*console.log(layerIds.toString());*/
           }
-<<<<<<< HEAD
-          /*console.log(layerIds.toString());*/
-        }
-        if (type == "jpg" || type == "jpeg" || type == "JPG" || type == "JPEG" || type == "png" || type == "PNG") {
-          var layer = data[i].id;
-        }
-        var fileName = ((data[i].basename).split("."));
-        var name = fileName[0];
-        if (data[i].name) {
-          name = data[i].name;
-        }
-        var bounds = data[i].bounds;
-        var center = data[i].center;
-        var about = data[i].description;
-        var maxzoom = data[i].maxzoom;
-        //var size = ((data[i].filesize)/1000000).toFixed(2);
-        var format = "";
-        var size = ((data[i].filesize) / 1000000).toFixed(2);
-        $("#table").append("<tr><td><strong style='font-size:larger;'>" + name + "</strong><br /><em>" + about + "</em></td><td style='min-width: 80px;'>" + size + " MB</td><td>" + type +
-        "</td><td><a class='btn btn-success btn-sm' style='width:100%;margin-top:4px;' href='preview/map.html?format=" + type + "&tile=" + fileName[0] + "&layer=" + layer + "&layers=" + layerIds.toString() + "&bounds=" + bounds +
-          "&center=" + center + "&maxzoom=" + maxzoom + "' target='_blank'>Preview</a> \
-        <br><a style='text-align: center;' href='/meta/" + fileName[0] + "-metadata.json'>Metadata</a>&nbsp;<a href='/meta/" + fileName[0] + "-tilejson.json'>Tilejson</a></td></tr>");
-      }
-    }
-    $('#example').DataTable({
-      "iDisplayLength": 50
-    });
-  });
-  /*$.getJSON('/space.json', function(data) {
-    console.log(data);
-    $("#free").html(data[0].freespace);
-    $("#total").html(data[0].totalspace);
-    $("#mem").html((data[0].memory).toFixed(2));
-    $("#cpu").html((data[0].cpu).toFixed(1));
-  });*/
-
-  /*$.getJSON('https://tiles.ovrdc.org/tiles.json', function(data) {
-    //  console.log("tiles.json", data);
-      for(i = 0; i < data.length; i++) {
-
-        console.log('test');
-        var name = data[i].name;
-        var size = ((data[i].filesize)/1000000).toFixed(2);
-        var format = data[i].type;
-        if (data[i].vector_layers[i].id) {
-            var id = data[i].vector_layers[i].id
-        }else{
-            var id = ""
-        }
-        //$("#table").append("<tr><td><a href=" + name + "</td><td>" + size + "</td><td>" + format + "</td></tr>");
-      }
-
-  });*/
-=======
           if (type == "jpg" || type == "jpeg" || type == "JPG" || type == "JPEG" || type == "png" || type == "PNG") {
             var layer = data[i].id;
           }
@@ -598,7 +418,6 @@ var metadata;
       //$("#requestsDiv").html(d.requests)
     }
   });
->>>>>>> 520f68dd3ba6cd33fee6d2af4af83218ea385365
 </script>
 
 </html>

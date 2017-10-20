@@ -5,3 +5,4 @@ data-raw/
 *.mbtiles
 meta/
 tiles/
+config.js
