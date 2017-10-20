@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 {"tilejson":"1.0.0","name":"counties.mbtiles","description":"counties.mbtiles","version":"1.0.0","scheme":"tms","tiles":["https://tileserver.ovrdc.org/counties/{z}/{x}/{y}.pbf","https://a.tileserver.ovrdc.org/counties/{z}/{x}/{y}.pbf","https://b.tileserver.ovrdc.org/counties/{z}/{x}/{y}.pbf","https://c.tileserver.ovrdc.org/counties/{z}/{x}/{y}.pbf"],"vector_layers":[{"id":"counties","description":"","minzoom":0,"maxzoom":14,"fields":{"COUNTY_NAM":"String","POPULATION":"Number","Shape_Leng":"Number"}}],"minzoom":0,"maxzoom":14,"bounds":[-84.820069,38.40315,-80.519628,41.977384]}
+=======
+{"tilejson":"1.0.0","name":"counties.mbtiles","description":"counties.mbtiles","version":"1.0.0","scheme":"tms","tiles":["http://localhost/counties/{z}/{x}/{y}.pbf"],"vector_layers":[{"id":"counties","description":"","minzoom":0,"maxzoom":14,"fields":{"COUNTY_NAM":"String","POPULATION":"Number","Shape_Leng":"Number"}}],"minzoom":0,"maxzoom":14,"bounds":[-84.820069,38.40315,-80.519628,41.977384]}
+>>>>>>> 520f68dd3ba6cd33fee6d2af4af83218ea385365

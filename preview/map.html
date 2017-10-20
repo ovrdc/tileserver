@@ -1,3 +1,4 @@
+<<<<<<< HEAD:preview/map.html
 <!DOCTYPE html>
 <html>
 
@@ -349,3 +350,357 @@
 </body>
 
 </html>
+=======
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OVRDC Tileserver Preview</title>
+  <script src='https://api.mapbox.com/mapbox-gl-js/v0.39.1/mapbox-gl.js'></script>
+  <link href='https://api.mapbox.com/mapbox-gl-js/v0.39.1/mapbox-gl.css' rel='stylesheet' />
+  <script src='mapbox-gl-inspect.js'></script>
+  <link href='mapbox-gl-inspect.css' rel='stylesheet' />
+  <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+  <style>
+    html, body {
+      height: 100%;
+    }
+    body {
+      background: #fff;
+      color: #333;
+      margin: 0;
+      font-family: "Segoe UI", "Lato", sans-serif;
+    }
+
+    #map {
+      position: absolute;
+      left:0;
+      top:0;
+      bottom:0;
+      right: 30%;
+      height:100%;
+    }
+
+    #sidebar {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 30%;
+      z-index: 9999;
+      overflow: auto;
+      border-left: thin solid lightgray;
+    }
+
+    h3,
+    h6 {
+      margin: 8px;
+    }
+
+    #layerList,
+    #propertyList {
+      margin: 8px;
+    }
+
+    #layerList div div {
+      width: 15px;
+      height: 15px;
+      display: inline-block;
+    }
+
+    .inner {
+      padding: 10px;
+    }
+
+    #map canvas {
+      cursor: crosshair;
+    }
+
+    #loader {
+      background: white;
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      z-index: 9998;
+    }
+
+    .loader-fadeout {
+      -webkit-transition: opacity 0.3s ease-in-out;
+      -moz-transition: opacity 0.3s ease-in-out;
+      -ms-transition: opacity 0.3s ease-in-out;
+      -o-transition: opacity 0.3s ease-in-out;
+      opacity: 0;
+      z-index: 0!important;
+    }
+
+    #loader-img {
+      background: white;
+      position: absolute;
+      z-index: 9999;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    @media screen and (max-width:768px) {
+      #sidebar {
+        display: none;
+      }
+      #map {
+        right: 0;
+        width: 100%;
+      }
+    }
+    /*custom page styles*/
+    #extrude {
+      position: absolute;
+      top: 150px;
+      right: 10px;
+      background: white;
+      width: 30px;
+      height: 30px;
+      padding: 7px 0;
+      text-align: center;
+      font-size: larger;
+      cursor: pointer;
+      font-weight: bold;
+      line-height: 15px;
+      box-shadow: 0px 0px 0px 2px rgba(0,0,0,0.1);
+    }
+    .active {
+      font-weight: bolder;
+      color: orange;
+    }
+    /**/
+  </style>
+</head>
+
+<body>
+  <div id="map">
+    <div id="loader">
+      <div id="loader-img"><img src="hex-loader2.gif" /></div>
+    </div>
+  </div>
+  <div id="sidebar">
+    <div class="inner">
+      <h3>OVRDC Tile Preview</h3>
+      <h6><a href="/">Return to the OVRDC Tileserver</a></h6>
+      <div id="layerList"></div>
+      <pre id="propertyList"></pre>
+    </div>
+  </div>
+  <script>
+    var getQuery = function(q) {
+      if (q) {
+        var params = {},
+          queries, temp, i, l;
+        // Split into key/value pairs
+        queries = q.split("&");
+        // Convert the array of strings into an object
+        for (i = 0, l = queries.length; i < l; i++) {
+          temp = queries[i].split('=');
+          params[temp[0]] = temp[1];
+        }
+        return params;
+      }
+    };
+
+    var query = getQuery((window.location.search).substring(1));
+
+    //console.log(query);
+    var tileUrl, layers, tile, center, format, maxzoom, tile1, tile2, tile3, tile4, layer;
+    format = query.format;
+    layer = query.layer;
+    layers = query.layers;
+    var layersArray = layers.split(",");
+    //console.log(layersArray[0].toString());
+    tile = query.tile;
+    bounds = (query.bounds).split(",");
+    center = (query.center).split(",");
+    maxzoom = Number(query.maxzoom);
+    //tile1 = "https://174.138.45.93/" + tile + "/{z}/{x}/{y}." + format;
+    tile1 = "http://127.0.0.1:3000/" + tile + "/{z}/{x}/{y}." + format;
+    tile2 = "https://b.tileserver.ovrdc.org/" + tile + "/{" + "z" + "}/" + "{x}/{y}." + format;
+    tile3 = "https://c.tileserver.ovrdc.org/" + tile + "/{" + "z" + "}/" + "{x}/{y}." + format;
+    tile4 = "https://tileserver.ovrdc.org/" + tile + "/{" + "z" + "}/" + "{x}/{y}." + format;
+    //console.log(unescape(tiles));
+    var map = new mapboxgl.Map({
+      container: 'map',
+      hash: false,
+      style: 'blank.json',
+      attributionControl: true,
+      pitch: 0,
+      bearing: 0,
+      center: [center[0], center[1]],
+      zoom: 8,
+      /*debug: true,*/
+      hash: true,
+      maxZoom: 22,
+      minZoom: 4
+    });
+    //map.addControl(new mapboxgl.AttributionControl());
+    map.addControl(new mapboxgl.NavigationControl())
+    map.addControl(new mapboxgl.GeolocateControl({
+      positionOptions: {
+        enableHighAccuracy: true
+      },
+      trackUserLocation: true
+    }));
+    //map.addControl(new mapboxgl.FullscreenControl());
+    map.addControl(new mapboxgl.ScaleControl({
+      maxWidth: 80,
+      unit: "imperial"
+    }));
+
+    map.on('load', function() {
+      buildMap();
+      document.getElementById('layerList').innerHTML = '<pre>Current Zoom Level: '+ (map.getZoom()).toFixed(2) + '</pre>';
+    });
+
+    function buildMap() {
+      if (format == "pbf") {
+        var mapLayers = [
+          {
+            "id": "background",
+            "type": "background",
+            "paint": {
+              "background-color": "white"
+            }
+          }
+        ];
+        for (var l=0; l < layersArray.length; l++) {
+          mapLayers.push(
+            {
+              "id": layersArray[l] + l + 2,
+              "type": "fill-extrusion",
+              "source": "preview",
+              "source-layer": layersArray[l],
+              "paint": {
+                "fill-extrusion-color": "whitesmoke",
+                "fill-extrusion-height": {
+                  "type": "identity",
+                  "property": "render_height"
+                },
+                "fill-extrusion-opacity": 1
+              },
+              "visibility": "visible",
+              "filter": ["has", "render_height"]
+            },
+          {
+            "id": layersArray[l] + l,
+            "type": "fill",
+            "source": "preview",
+            "source-layer": layersArray[l],
+            "paint": {
+              "fill-color": "whitesmoke",
+              "fill-outline-color": "orange"
+            },
+            "visibility": "visible",
+            "filter": ["==", "$type", "Polygon"]
+          },
+          {
+            "id": layersArray[l] + l + 1,
+            "type": "line",
+            "source": "preview",
+            "source-layer": layersArray[l],
+            "paint": {
+              "line-color": "orange"
+            },
+            "visibility": "visible",
+            "filter": ["==", "$type", "LineString"]
+          },
+          {
+            "id": layersArray[l] + l + 3,
+            "type": "circle",
+            "source": "preview",
+            "source-layer": layersArray[l],
+            "paint": {
+              "circle-radius": {
+                "stops": [
+                  [0,0],
+                  [13, 1],
+                  [19,8]
+                ]
+              },
+              "circle-color": "orange"
+            },
+            "visibility": "visible"
+          });
+        }
+        console.log(mapLayers);
+        var tilejson = "/meta/" + tile + "-tilejson.json";
+        console.log(tilejson);
+        map.setStyle({
+        	"version": 8,
+        	"name": "blank",
+        	"sources": {
+        		"openmaptiles": {
+        			"type": "vector",
+        			"url": ""
+        		},
+            'preview': {
+              "type": "vector",
+              "url": tilejson
+              //"tiles":["http://localhost/counties/{z}/{x}/{y}.pbf"],
+              //"maxzoom": maxzoom
+            }
+        	},
+        	"layers": mapLayers
+        });
+        map.addControl(new MapboxInspect({
+          showInspectMap: true,
+          showInspectButton: true,
+          selectThreshold: 10,
+          showMapPopup: true,
+          showMapPopupOnHover: false,
+          showInspectMapPopupOnHover: false
+        }));
+        map.on('click', function(e) {
+          var features = map.queryRenderedFeatures(e.point);
+          /*if (features.length) {
+            document.getElementById('propertyList').innerHTML = JSON.stringify(features, null, 2);
+          }*/
+        });
+        mapLayers.map(function(layer) {
+          document.getElementById('propertyList').innerHTML += "<input type='checkbox' name='layer' value='" + layer.id + "' checked>" + layer.id + "&nbsp;" + layer.type + "<br>";
+        });
+        var layerSideList = document.getElementById('propertyList');
+        layerSideList.addEventListener('change', function(e) {
+          console.log(e);
+          var clickedLayer = e.target.value;
+          if (!e.target.checked) {
+            map.setLayoutProperty(clickedLayer, "visibility", "none");
+          }else{
+            map.setLayoutProperty(clickedLayer, "visibility", "visible");
+          }
+        });
+      } else {
+        var tilejson = "/meta/" + tile + "-tilejson.json";
+        map.addSource("raster-tiles", {
+          "type": "raster",
+          "url": tilejson
+/*          "tileSize": 256,
+          "maxzoom": maxzoom*/
+        });
+        var rasterTilePreview = {
+          "id": "rasterTilePreview",
+          "type": "raster",
+          "source": "raster-tiles"
+        };
+        map.addLayer(rasterTilePreview);
+      }
+      setTimeout(function() {
+        document.getElementById('loader').className = "loader-fadeout";
+      }, 500);
+      map.on('zoomend', function() {
+        document.getElementById('layerList').innerHTML = '<pre>Current Zoom Level: '+ (map.getZoom()).toFixed(2) + '</pre>';
+      })
+    }
+  </script>
+</body>
+
+</html>
+>>>>>>> 520f68dd3ba6cd33fee6d2af4af83218ea385365:preview/map.html
