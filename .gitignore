@@ -4,4 +4,4 @@ app/
 data-raw/
 *.mbtiles
 meta/*
-tiles/*.mbtiles
+tiles/
