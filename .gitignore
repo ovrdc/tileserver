@@ -2,5 +2,5 @@ data/
 node_modules/
 app/
 data-raw/
-*.mbtiles
+tiles/*.mbtiles
 meta/*
