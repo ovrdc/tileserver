@@ -14,6 +14,7 @@ var config = {
   META_DIR: path.join(__dirname, '/meta/'),
   /*
   * For subdmains, use a blank "" as the first subdmain to serve tiles from the url as well
+  *
   */
   SUBDOMAINS: ['', 'a', 'b', 'c'],
   MONIT: true
