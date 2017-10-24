@@ -2,7 +2,6 @@ data/
 node_modules/
 app/
 data-raw/
-*.mbtiles
 meta/
 tiles/
 config.js
