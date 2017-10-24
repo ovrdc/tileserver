@@ -1,7 +1,7 @@
 ovrdc-tileserver
 ==============
 
-This is fork of Tobin Bradley's mbtiles-server which is a fork of Christopher Helm's [mbtiles-server](https://github.com/chelm/mbtiles-server) - see below for Tobin Bradley's description. This server adds a tile preview page and server stats. A server statistics page is in testing.
+This is fork of Tobin Bradley's mbtiles-server which is a fork of Christopher Helm's [mbtiles-server](https://github.com/chelm/mbtiles-server) - see below for Tobin Bradley's description. This server adds a tile preview page and server stats.
 
 ![](stats.png)
 
