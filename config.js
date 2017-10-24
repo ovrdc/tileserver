@@ -3,6 +3,7 @@
 var path = require('path');
 
 var config = {
+  //win for windows, anything else for linux not sure about mac this is used for the server stats
   SYSTEM: 'win',
   PORT: 80,
   TILES_DIR: path.join(__dirname, '/tiles/'),
