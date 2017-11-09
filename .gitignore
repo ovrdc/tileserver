@@ -1,7 +1,6 @@
-data/
 node_modules/
-app/
-data-raw/
-meta/
 tiles/
 config.js
+public/meta
+public/data/
+.depricated/

@@ -1,0 +1,19 @@
+{
+    "version": 8,
+    "name": "Coshocton Parcel Layer",
+    "sources": {
+		"cos": {
+			"type":"vector",
+			"url":"https://tileserver.ovrdc.org/meta/cos_parcels-tilejson.json"
+		}
+	},
+    "layers": [
+		{
+			"id":"parcels",
+			"type":"fill",
+			"source":"cos",
+			"source-layer":"cos_parcelsgeojson"
+		}
+	]
+}
+

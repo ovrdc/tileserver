@@ -4,7 +4,8 @@ var path = require('path');
 
 var config = {
   //win for windows, anything else for linux not sure about mac this is used for the server stats
-  SYSTEM: 'win',
+  SYSTEM: 'nix',
+  ENV: 'dev',
   PORT: 80,
   TILES_DIR: path.join(__dirname, '/tiles/'),
   PREVIEW_DIR: path.join(__dirname, '/preview/'),
@@ -20,7 +21,8 @@ var config = {
   *   SUBDOMAINS: ['', 'a', 'b', 'c'],
   */
   SUBDOMAINS: [''],
-  MONIT: true
+  MONIT: true,
+  MONIT_MIN: 10
 }
 
 module.exports = config;

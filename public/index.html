@@ -145,12 +145,12 @@
       <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false" style="display:none;">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
           <a class="navbar-brand" href="#">OVRDC Tileserver</a>
         </div>
 
@@ -289,7 +289,7 @@
 <script src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.13/js/dataTables.bootstrap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.bundle.min.js" integrity="sha256-OHkZxrR7EXZQ8MlUC+Ww2+RedaJSP6DEsAukSt023dU=" crossorigin="anonymous"></script>
-<script src="/static/countup.js"></script>
+<script src="assets/js/countup.js"></script>
 <script>
   var metadata, driveChart, driveChartData, memChartData;
   $(document).ready(function() {
@@ -309,7 +309,7 @@
       }
     });
 
-    $.getJSON('/meta/metadata.json', function(data) {
+    $.getJSON('meta/metadata.json', function(data) {
       //console.log('metadata:', data);
       metadata = data;
       for (i = 0; i < data.length; i++) {
@@ -364,8 +364,8 @@
       var data = {
         _: ts
       };
-      var url = '/meta/space.json';
-      $.getJSON('/meta/space.json', data)
+      var url = 'meta/space.json';
+      $.getJSON('meta/space.json', data)
         .done(function(data) {
           console.log(data);
           var chartData = {};
