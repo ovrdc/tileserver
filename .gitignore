@@ -4,3 +4,4 @@ config.js
 public/meta
 public/data/
 .depricated/
+public/cache
