@@ -9,10 +9,21 @@ var express = require("express"),
   cors = require('cors'),
   compression = require('compression'),
   chokidar = require('chokidar'),
+  fsPath = require('fs-path'),
+  bunyan = require('bunyan'),
   config = require('./config'); /* thanks tilehut*/
 
 require('prototypes');
 
+var log = bunyan.createLogger({
+  name: 'log',
+    streams: [{
+      path: './log/nodelog.json',
+      // `type: 'file'` is implied
+      period: '1d',   // daily rotation
+      count: 14        // keep 3 back copies
+    }]
+});
 app.use(cors());
 app.use(compression({level: 1}))
 
@@ -104,26 +115,26 @@ function getTileData(e, callback) {
   fs.readdir(tilesDir, function(err, files) {
     if (err) throw err;
     tilesNumber = files.length;
-    //console.log(tilesNumber);
-    //console.log("Serving following areas:");
+    //log.info(tilesNumber);
+    //log.info("Serving following areas:");
     files.forEach(function(file) {
-      //console.log('files: ' + file);
+      //log.info('files: ' + file);
       if (file.endsWith('.mbtiles')) {
         var tilePath = tilesDir + file;
-        //console.log(tilePath);
+        //log.info(tilePath);
         //get metadata from mbtiles to show on an indexpage and to create the preview map
         new MBTiles(tilePath, function(err, mbtiles) {
           if (err) throw err;
           mbtiles.getInfo(function(err, info) {
             if (err) {
-              console.log(err);
+              log.info(err);
               /* try for one minute to read the tile data, after that point exit this function */
               if (attempts < 6) {
-                console.log('attempting to read tile info from new mbtiles')
+                //log.info('attempting to read tile info from new mbtiles')
                 setTimeout(getTileData, 10000);
                 return false
               }else{
-                console.log('FAILED: attempting to read tile info from new mbtiles')
+                log.info('FAILED: attempting to read tile info from new mbtiles')
                 return false
               }
               attempts = attempts + 1;
@@ -133,7 +144,7 @@ function getTileData(e, callback) {
             /*write metadata for each tile*/
             fs.writeFile("public/meta/"+ tilename +"-metadata.json", JSON.stringify(info), function(err) {
               if (err) {
-                return console.log(err)
+                return log.info(err)
               }
             });
             /*build tilejson*/
@@ -142,19 +153,19 @@ function getTileData(e, callback) {
             }else{
               vl = []
             }
-            if (config.SUBDOMAINS.length > 0) {
+            if (config.SUBDOMAINS.length > 0 && config.env != 'dev') {
               var tilesources = config.SUBDOMAINS.map(function(s, i) {
                 if (i === 0 && s === "") {
-                  return config.URL_PREFIX + s + config.URL + "tiles/" + tilename + "/{z}/{x}/{y}." + info.format
+                  return config.URL_PREFIX + s + config.URL + "cache/" + tilename + "/{z}/{x}/{y}." + info.format
                 }else{
-                  return config.URL_PREFIX + s + '.' + config.URL + "tiles/" + tilename + "/{z}/{x}/{y}." + info.format
+                  return config.URL_PREFIX + s + '.' + config.URL + "cache/" + tilename + "/{z}/{x}/{y}." + info.format
                 }
 
               });
-              //console.log(tilesources)
+              //log.info(tilesources)
             }else{
               var tilesources = [config.URL_PREFIX + config.URL + "tiles/" + tilename + "/{z}/{x}/{y}." + info.format];
-              //console.log(tilesources)
+              //log.info(tilesources)
             }
             var tilejson = {
               "tilejson": "1.0.0",
@@ -169,11 +180,12 @@ function getTileData(e, callback) {
               "maxzoom": info.maxzoom,
               "bounds": info.bounds
             };
-            //console.log(tilejson);
+            //log.info(tilejson);
+
             /*write tilejson*/
             fs.writeFile("public/meta/"+ filename +"-tilejson.json", JSON.stringify(tilejson), function(err) {
               if (err) {
-                return console.log(err)
+                return log.info(err)
               }
             });
           });
@@ -181,9 +193,9 @@ function getTileData(e, callback) {
         var ext0 = path.extname(file);
         var ext = ext0.substring(1);
         var filename = file.substringUpTo('.mbtiles');
-        //console.log(filename);
+        //log.info(filename);
         var tileLocation = tilesDir + file;
-        //console.log(tileLocation);
+        //log.info(tileLocation);
         var stats = fs.statSync(tileLocation);
         var fileSizeInBytes = stats["size"];
         //Convert the file size to megabytes (optional)
@@ -195,7 +207,7 @@ function getTileData(e, callback) {
       }
     });
     attempts = 0;
-    console.log('tile metadata and tilejson complete');
+    console.info('tile metadata and tilejson complete');
     buildDataIndex();
   });
 }
@@ -209,14 +221,14 @@ function buildDataIndex() {
     dataNumber = files.length;
     files.forEach(function(file) {
       //totalDataSize = totalDataSize + getSize(file);
-      //console.log('files: ' + file);
+      //log.info('files: ' + file);
       if (file.endsWith('.geojson') || file.endsWith('.json') || file.endsWith('.topojson')) {
         dataindex.push(file);
       }
     });
     fs.writeFile("public/meta/dataindex.json", dataindex, function(err) {
       if (err) {
-        return console.log(err)
+        return log.info(err)
       }
     });
     buildIndex();
@@ -235,17 +247,17 @@ function buildIndex() {
     }, "");
     fs.writeFile("public/meta/tileindex.json", tileindex, function(err) {
       if (err) {
-        return console.log(err)
+        return log.info(err)
       }
     });
     fs.writeFile("public/meta/metadata.json", 0, function (err) {
       if (err) {
-        return console.log(err)
+        return log.info(err)
       }
     });
     fs.writeFile("public/meta/metadata.json", JSON.stringify(metadata), function(err) {
       if (err) {
-        return console.log(err)
+        return log.info(err)
       }
     });
   }else {
@@ -267,15 +279,15 @@ function watchFiles(watcher, folder, action) {
   });
   watcher
     .on('add', function(path) {
-      console.log('File' +  path + 'has been added');
+      log.info('File' +  path + 'has been added');
       action
     })
     .on('change', function(path) {
-      console.log('File' +  path + 'has been changed')
+      log.info('File' +  path + 'has been changed')
       action
     })
     .on('unlink', function(path) {
-      console.log('File' +  path + 'has been deleted');
+      log.info('File' +  path + 'has been deleted');
       action
     });
 }
@@ -284,16 +296,28 @@ watchFiles(watchTiles, './tiles', getTileData());
 watchFiles(watchData, './public/data', buildDataIndex(dataDir));*/
 
 /* tile cannon adapted from mbtiles-server */
-app.get('/tiles/:s/:z/:x/:y.:t', function(req, res) {
+app.get('/:d/:s/:z/:x/:y.:t', function(req, res) {
   requests = requests + 1;
-  //console.log(req.params);
   var appTilesDir = tilesDir;
   var mbtilesFile = appTilesDir + req.params.s + '.mbtiles';
   /*prevent app from creating empty mbtiles file if the file is requested but does not exist*/
   if (tileindex.indexOf(req.params.s) >= 0) {
-    //console.log('exists');
+    //log.info('exists');
+    var cachetilepath = config.CACHE_DIR + req.params.s + "/" + req.params.z + "/" + req.params.x +"/" + req.params.y + "." + req.params.t;
+    if (fs.existsSync(cachetilepath)) {
+      //log.info('exists');
+      console.log('exists');
+      res.set(getContentType(req.params.t));
+      res.sendFile(cachetilepath);
+      //log.info('exists-cache-sent');
+      console.log(cachetilepath);
+      return false
+    }
+    if (fs.existsSync(cachetilepath)) {
+      log.info('didnt stop after sending cached tile')
+    }
     new MBTiles(p.join(appTilesDir, req.params.s + '.mbtiles'), function(err, mbtiles) {
-      //console.log(req.params);
+      //log.info(req.params);
       mbtiles.getTile(req.params.z, req.params.x, req.params.y, function(err, tile, headers) {
         if (err) {
           res.set({
@@ -305,16 +329,21 @@ app.get('/tiles/:s/:z/:x/:y.:t', function(req, res) {
           res.set({
             "Content-Type": "text/plain"
           });
-          console.log('error getting tile ' + req.params.s);
+          log.info('error getting tile ' + req.params.s);
           /*added for when there are no tiles at this location but the mbtiles file does exist and there are tiles elsewhere, avoiding console log errors*/
           res.status(204).send('Tile rendering error: ' + err + '\n');
         } else {
           res.set(getContentType(req.params.t));
           res.send(tile);
-          //console.log('sent');
+          console.log(appTilesDir+ req.params.s +req.params.z+ req.params.x+ req.params.y);
+          log.info('sent raw tile instead of cache');
+          fsPath.writeFile(cachetilepath, tile,  (err) => {
+            if (err) throw err;
+            log.info('Cached tile has been saved!');
+          });
         }
       });
-      if (err) console.log("error opening database");
+      if (err) log.info("error opening database");
     });
   }
 });
@@ -323,12 +352,16 @@ app.get('/tiles/:s/:z/:x/:y.:t', function(req, res) {
 * get space.json to add to old requests
 */
 
+app.get('*', function(req, res) {
+  console.log(req.params)
+});
+
 var oldSpace, space = [];
 fs.readFile('./public/meta/space.json', 'utf8', function (err, data) {
   if (err) throw err;
   oldSpace = JSON.parse(data);
   requests = oldSpace[0].requests + requests;
-  console.log(requests);
+  //log.info(requests);
   monitorInit();
 });
 
@@ -336,9 +369,9 @@ function updateMetadata(dir, name, func) {
   fs.readdir(dir, function(err, files) {
     if (err) throw err;
     checkNumber = files.length;
-    console.log(checkNumber, name);
+    //log.info(checkNumber, name);
     if (checkNumber != name) {
-      console.log('files changed in ' + dir)
+      log.info('files changed in ' + dir)
       if (attempts === 0) {
         setTimeout(func,5000);
       }
@@ -349,14 +382,14 @@ function updateMetadata(dir, name, func) {
 function checkUsage() {
     pusage.stat(process.pid, function(err, stat) {
     if (err) throw err;
-    //console.log(stat);
+    //log.info(stat);
     mem = (stat.memory / 1048576);
     space[0].memory = mem.toFixed(2);
     space[0].cpu = stat.cpu;
     space[0].requests = requests;
-    //console.log('Pcpu: %s', stat.cpu);
-    //console.log('Mem: %s', stat.memory / 1048576);
-    console.log(space[0]);
+    //log.info('Pcpu: %s', stat.cpu);
+    //log.info('Mem: %s', stat.memory / 1048576);
+    log.info(space[0]);
     writeSpace();
     // Unmonitor process
     pusage.unmonitor(process.pid);
@@ -364,10 +397,10 @@ function checkUsage() {
 }
 
 function writeSpace() {
-  //console.log(space[0]);
+  //log.info(space[0]);
   fs.writeFile("public/meta/space.json", JSON.stringify(space), function(err) {
     if (err) {
-      return console.log(err)
+      return log.info(err)
     }
   });
 }
@@ -382,7 +415,7 @@ function monitorInit() {
   }
   diskspace.check(drive, function(err, server) {
     if (err) throw err;
-    //console.log(server);
+    //log.info(server);
     space = [];
     var f = (server.free / 1073741824).toFixed(2);
     var t = (server.total / 1073741824).toFixed(2);
@@ -392,7 +425,7 @@ function monitorInit() {
       memory: mem,
       cpu: cpu,
     });
-    //console.log(free, total);
+    //log.info(free, total);
     checkUsage()
   });
   updateMetadata(tilesDir, tilesNumber, getTileData);
